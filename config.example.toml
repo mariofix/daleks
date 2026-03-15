@@ -1,0 +1,45 @@
+# Daleks Configuration Example
+# Copy this file to config.toml and adjust to your environment.
+
+# IP addresses or CIDR networks allowed to submit emails.
+# Requests from any other IP are rejected with HTTP 403.
+allowed_networks = [
+    "127.0.0.1/32",
+    "::1/128",
+    # "10.0.0.0/8",
+    # "192.168.0.0/24",
+]
+
+# Maximum number of messages each per-SMTP queue may hold before new
+# submissions are rejected with HTTP 429.  Set to 0 for unlimited.
+queue_max_size = 1000
+
+# Logging level: DEBUG, INFO, WARNING, ERROR
+log_level = "INFO"
+
+# ── SMTP accounts ────────────────────────────────────────────────────────────
+# Define one [[smtp_accounts]] section per outbound relay.
+# Multiple accounts are used in round-robin order when no explicit
+# smtp_account is provided in the submission payload.
+
+[[smtp_accounts]]
+name     = "primary"
+host     = "smtp.example.com"
+port     = 587
+username = "noreply@example.com"
+password = "change-me"
+use_tls  = true    # STARTTLS on port 587
+use_ssl  = false   # Implicit TLS on port 465 — cannot combine with use_tls
+timeout  = 30
+workers  = 3       # Parallel senders for this account
+
+[[smtp_accounts]]
+name     = "secondary"
+host     = "smtp.backup.com"
+port     = 465
+username = "backup@example.com"
+password = "change-me"
+use_tls  = false
+use_ssl  = true
+timeout  = 30
+workers  = 2
