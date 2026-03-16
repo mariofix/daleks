@@ -133,6 +133,74 @@ Returns `202 Accepted` on success, or `429 Too Many Requests` if the queue is fu
 { "status": "ok", "queues": { "primary": 3, "secondary": 0 } }
 ```
 
+## Deployment (systemd)
+
+A ready-to-use systemd unit file is included at
+[`daleks.service`](daleks.service).  It assumes the package is installed
+inside a virtualenv under `/home/zvn/public_apps/daleks/.venv` and that your
+configuration file lives at `/home/zvn/public_apps/daleks/config.toml`.
+
+### Install the service
+
+```bash
+# 1. Create the install directory and virtualenv
+mkdir -p /home/zvn/public_apps/daleks
+cd /home/zvn/public_apps/daleks
+python3 -m venv .venv
+.venv/bin/pip install "daleks @ git+https://github.com/mariofix/daleks.git"
+
+# 2. Copy and edit the configuration
+cp config.example.toml config.toml
+$EDITOR config.toml
+
+# 3. Install the unit file
+sudo cp daleks.service /etc/systemd/system/daleks.service
+sudo systemctl daemon-reload
+
+# 4. Enable and start the service
+sudo systemctl enable --now daleks
+```
+
+### Manage the service
+
+```bash
+sudo systemctl status daleks    # check current status
+sudo systemctl restart daleks   # restart after a config change
+sudo systemctl stop daleks      # stop the service
+sudo systemctl disable daleks   # prevent start on boot
+```
+
+### View logs with journalctl
+
+All output is routed to the systemd journal — no log files are created.
+
+```bash
+# Follow live log output (like tail -f)
+journalctl -u daleks -f
+
+# Show all logs for the current boot
+journalctl -u daleks -b
+
+# Show the last 100 lines
+journalctl -u daleks -n 100
+
+# Show logs since a specific time
+journalctl -u daleks --since "2024-01-01 00:00:00"
+journalctl -u daleks --since "1 hour ago"
+
+# Show only error-level messages
+journalctl -u daleks -p err
+
+# Show logs between two timestamps
+journalctl -u daleks --since "2024-01-01 08:00" --until "2024-01-01 09:00"
+
+# Output in JSON format (useful for log shipping)
+journalctl -u daleks -o json
+
+# Combine with grep for keyword filtering
+journalctl -u daleks | grep "smtp"
+```
+
 ## Development
 
 ```bash
