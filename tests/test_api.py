@@ -47,6 +47,39 @@ class TestSubmitEmail:
             )
         assert resp.status_code == 202
 
+    async def test_submit_html_email_content_reaches_smtp(self, client):
+        """HTML body submitted via the API is delivered to the SMTP client intact."""
+        import asyncio
+
+        html_body = "<h1>Password Reset</h1><p>Click <a href='https://example.com'>here</a>.</p>"
+        captured: list = []
+
+        async def _capture(msg, **kwargs):
+            captured.append(msg)
+
+        with patch("daleks.smtp_client.aiosmtplib.send", side_effect=_capture):
+            resp = await client.post(
+                "/api/v1/email",
+                json={
+                    "from_address": "noreply@example.com",
+                    "to": ["user@example.com"],
+                    "subject": "Password Reset",
+                    "html_body": html_body,
+                },
+            )
+        assert resp.status_code == 202
+        # Allow the background queue worker to drain
+        for _ in range(20):
+            if captured:
+                break
+            await asyncio.sleep(0.05)
+        assert captured, "aiosmtplib.send was never called — queue did not drain"
+        msg = captured[0]
+        content_types = [p.get_content_type() for p in msg.walk()]
+        assert "text/html" in content_types
+        html_part = next(p for p in msg.walk() if p.get_content_type() == "text/html")
+        assert html_body in html_part.get_content()
+
     async def test_submit_email_no_body_returns_422(self, client):
         resp = await client.post(
             "/api/v1/email",

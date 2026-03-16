@@ -1,4 +1,4 @@
-"""Tests for contrib.flask_security_mail.DaleksMailUtil."""
+"""Tests for daleks.contrib.flask_security_mail.DaleksMailUtil."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from contrib.flask_security_mail import DaleksMailUtil, _normalise_sender
+from daleks.contrib.flask_security_mail import DaleksMailUtil, _normalise_sender
 
 
 # ── Helper ────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ class TestDaleksMailUtil:
         app = _make_app()
         util = DaleksMailUtil(app)
 
-        with patch("contrib.flask_security_mail.DaleksClient") as MockClient:
+        with patch("daleks.contrib.flask_security_mail.DaleksClient") as MockClient:
             client_instance = MockClient.return_value
             util.send_mail(
                 template="welcome",
@@ -72,7 +72,7 @@ class TestDaleksMailUtil:
         app = _make_app()
         util = DaleksMailUtil(app)
 
-        with patch("contrib.flask_security_mail.DaleksClient") as MockClient:
+        with patch("daleks.contrib.flask_security_mail.DaleksClient") as MockClient:
             client_instance = MockClient.return_value
             util.send_mail(
                 template="reset",
@@ -96,7 +96,7 @@ class TestDaleksMailUtil:
         app = _make_app()
         util = DaleksMailUtil(app)
 
-        with patch("contrib.flask_security_mail.DaleksClient") as MockClient:
+        with patch("daleks.contrib.flask_security_mail.DaleksClient") as MockClient:
             client_instance = MockClient.return_value
             util.send_mail(
                 template="confirm",
@@ -119,7 +119,7 @@ class TestDaleksMailUtil:
         app = _make_app(DALEKS_SMTP_ACCOUNT="primary")
         util = DaleksMailUtil(app)
 
-        with patch("contrib.flask_security_mail.DaleksClient") as MockClient:
+        with patch("daleks.contrib.flask_security_mail.DaleksClient") as MockClient:
             util.send_mail(
                 template="welcome",
                 subject="Hi",
@@ -139,7 +139,7 @@ class TestDaleksMailUtil:
         app = _make_app(DALEKS_TIMEOUT=30)
         util = DaleksMailUtil(app)
 
-        with patch("contrib.flask_security_mail.DaleksClient") as MockClient:
+        with patch("daleks.contrib.flask_security_mail.DaleksClient") as MockClient:
             util.send_mail(
                 template="welcome",
                 subject="Hi",
@@ -174,7 +174,7 @@ class TestDaleksMailUtil:
         app = _make_app()
         util = DaleksMailUtil(app)
 
-        with patch("contrib.flask_security_mail.DaleksClient"):
+        with patch("daleks.contrib.flask_security_mail.DaleksClient"):
             # Should not raise even with unknown kwargs
             util.send_mail(
                 template="welcome",

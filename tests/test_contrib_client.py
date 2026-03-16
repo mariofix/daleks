@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from contrib.client import DaleksClient
+from daleks.contrib.client import DaleksClient
 
 
 def _mock_response(status_code: int = 202, json_data: dict | None = None) -> MagicMock:

@@ -60,11 +60,37 @@ class TestBuildMessage:
         content_types = [p.get_content_type() for p in msg.walk()]
         assert "text/html" in content_types
 
+    def test_html_only_content(self):
+        """The exact HTML string must appear in the message body."""
+        html = "<h1>Welcome</h1><p>Click <a href='https://example.com'>here</a> to confirm.</p>"
+        msg = _build_message(_email(text_body=None, html_body=html))
+        content_types = [p.get_content_type() for p in msg.walk()]
+        assert "text/html" in content_types
+        html_part = next(p for p in msg.walk() if p.get_content_type() == "text/html")
+        assert html in html_part.get_content()
+
     def test_html_and_text(self):
         msg = _build_message(_email(text_body="plain", html_body="<b>html</b>"))
         content_types = [p.get_content_type() for p in msg.walk()]
         assert "text/plain" in content_types
         assert "text/html" in content_types
+
+    def test_html_and_text_content(self):
+        """Both the plain-text and HTML strings must appear in their respective parts."""
+        text = "Please confirm your account."
+        html = "<p>Please <strong>confirm</strong> your account.</p>"
+        msg = _build_message(_email(text_body=text, html_body=html))
+        text_part = next(p for p in msg.walk() if p.get_content_type() == "text/plain")
+        html_part = next(p for p in msg.walk() if p.get_content_type() == "text/html")
+        assert text in text_part.get_content()
+        assert html in html_part.get_content()
+
+    def test_html_special_characters(self):
+        """HTML entities and special characters survive the round-trip."""
+        html = '<p>Reset link: <a href="https://example.com/reset?token=abc&amp;id=1">click</a></p>'
+        msg = _build_message(_email(text_body=None, html_body=html))
+        html_part = next(p for p in msg.walk() if p.get_content_type() == "text/html")
+        assert html in html_part.get_content()
 
 
 class TestSendEmail:

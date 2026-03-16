@@ -13,10 +13,42 @@ them asynchronously through one or more SMTP relays.
 - **No auth, no data storage** — only simple log lines
 - **Minimal dependencies** — FastAPI + uvicorn + aiosmtplib
 
+## Installation
+
+Daleks is not published on PyPI. Install it directly from GitHub:
+
+```bash
+# Latest main branch
+pip install "daleks @ git+https://github.com/mariofix/daleks.git"
+
+# Specific tag / release
+pip install "daleks @ git+https://github.com/mariofix/daleks.git@v0.1.0"
+
+# With contrib extras (adds requests for the HTTP client integration)
+pip install "daleks[contrib] @ git+https://github.com/mariofix/daleks.git"
+```
+
+Or in `requirements.txt` / `pyproject.toml`:
+
+```
+# requirements.txt
+daleks @ git+https://github.com/mariofix/daleks.git
+```
+
+```toml
+# pyproject.toml
+dependencies = [
+    "daleks @ git+https://github.com/mariofix/daleks.git",
+]
+```
+
 ## Quick start
 
 ```bash
-pip install "daleks @ ."
+pip install "daleks @ git+https://github.com/mariofix/daleks.git"
+
+# For local development, clone first and then:
+pip install -e "."
 
 # Copy and edit the example configuration
 cp config.example.toml config.toml
@@ -95,20 +127,21 @@ pytest
 
 ## Contrib integrations
 
-The `contrib/` folder contains optional helper modules for common frameworks.
-They require the **`contrib`** optional extra (which adds `requests`):
+The `daleks/contrib/` sub-package contains optional helper modules for common
+frameworks.  They require the **`contrib`** optional extra (which adds
+`requests`):
 
 ```bash
-pip install "daleks[contrib]"
+pip install "daleks[contrib] @ git+https://github.com/mariofix/daleks.git"
 ```
 
-### `contrib.client` — synchronous HTTP client
+### `daleks.contrib.client` — synchronous HTTP client
 
 A thin wrapper around `requests` for submitting emails to the Daleks API from
 any Python application:
 
 ```python
-from contrib.client import DaleksClient
+from daleks.contrib.client import DaleksClient
 
 with DaleksClient("http://localhost:8000") as client:
     client.send_email(
@@ -128,7 +161,7 @@ Constructor parameters:
 | `timeout` | `10` | HTTP request timeout in seconds |
 | `smtp_account` | `None` | Default SMTP account name (round-robin if omitted) |
 
-### `contrib.flask_security_mail` — Flask-Security mail util
+### `daleks.contrib.flask_security_mail` — Flask-Security mail util
 
 `DaleksMailUtil` is a drop-in `mail_util_cls` for
 [Flask-Security](https://flask-security-too.readthedocs.io/) that routes all
@@ -138,7 +171,7 @@ Daleks queue instead of connecting to SMTP directly.
 ```python
 from flask import Flask
 from flask_security import Security, SQLAlchemyUserDatastore
-from contrib.flask_security_mail import DaleksMailUtil
+from daleks.contrib.flask_security_mail import DaleksMailUtil
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super-secret"
