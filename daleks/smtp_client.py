@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from email.message import EmailMessage as StdEmailMessage
-from email.utils import make_msgid
+from email.utils import formatdate, make_msgid
 
 import aiosmtplib
 
@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 def _build_message(email: EmailMessage) -> StdEmailMessage:
     """Construct a stdlib :class:`email.message.EmailMessage`."""
     msg = StdEmailMessage()
+    msg["Date"] = formatdate(localtime=True)
     msg["Message-ID"] = make_msgid()
     msg["Subject"] = email.subject
     msg["From"] = email.from_address
