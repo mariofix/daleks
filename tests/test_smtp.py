@@ -39,6 +39,12 @@ def _email(**kwargs) -> EmailMessage:
 
 
 class TestBuildMessage:
+    def test_message_id_is_set(self):
+        """Every built message must have a non-empty Message-ID header."""
+        msg = _build_message(_email())
+        assert msg["Message-ID"]
+        assert msg["Message-ID"].strip("<>") != ""
+
     def test_plain_text(self):
         msg = _build_message(_email())
         assert msg["Subject"] == "Hello"
