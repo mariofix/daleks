@@ -46,17 +46,20 @@ from __future__ import annotations
 
 import logging
 
+from flask_security import MailUtil
+
 from .client import DaleksClient
 
 logger = logging.getLogger(__name__)
 
 
-class DaleksMailUtil:
+class DaleksMailUtil(MailUtil):
     """Flask-Security ``mail_util_cls`` that sends via the Daleks API.
 
-    This class matches the interface expected by Flask-Security's
-    ``mail_util_cls`` configuration option (the same interface as
-    :class:`flask_security.MailUtil`).
+    Inherits from :class:`flask_security.MailUtil` so that all required
+    interface methods (``validate``, ``normalize``, etc.) are available.
+    Only :meth:`send_mail` is overridden to route emails through the Daleks
+    HTTP API instead of the default mail extension.
 
     Parameters
     ----------
@@ -66,6 +69,7 @@ class DaleksMailUtil:
     """
 
     def __init__(self, app: object) -> None:
+        super().__init__(app)
         self.app = app
 
     # ── Flask-Security interface ───────────────────────────────────────────────

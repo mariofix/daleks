@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask_security import MailUtil
 
 from daleks.contrib.flask_security_mail import DaleksMailUtil, _normalise_sender
 
@@ -186,3 +187,19 @@ class TestDaleksMailUtil:
                 user=MagicMock(),
                 extra_future_arg="value",
             )
+
+    def test_is_subclass_of_mail_util(self):
+        """DaleksMailUtil must be a subclass of MailUtil for the full interface."""
+        assert issubclass(DaleksMailUtil, MailUtil)
+
+    def test_has_validate_method(self):
+        """DaleksMailUtil must expose the validate() method required by Flask-Security."""
+        app = _make_app()
+        util = DaleksMailUtil(app)
+        assert callable(getattr(util, "validate", None))
+
+    def test_has_normalize_method(self):
+        """DaleksMailUtil must expose the normalize() method required by Flask-Security."""
+        app = _make_app()
+        util = DaleksMailUtil(app)
+        assert callable(getattr(util, "normalize", None))
