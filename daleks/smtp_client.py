@@ -46,8 +46,11 @@ async def send_email(account: SmtpAccount, email: EmailMessage) -> None:
     All connection setup and teardown is handled by ``aiosmtplib.send``.
     """
     msg = _build_message(email)
+    recipients = email.to + (email.cc or [])
     await aiosmtplib.send(
         msg,
+        sender=email.from_address,
+        recipients=recipients,
         hostname=account.host,
         port=account.port,
         username=account.username or None,
