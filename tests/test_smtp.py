@@ -45,6 +45,12 @@ class TestBuildMessage:
         assert msg["Message-ID"]
         assert msg["Message-ID"].strip("<>") != ""
 
+    def test_date_is_set(self):
+        """Every built message must have a non-empty Date header (required by RFC 5322)."""
+        msg = _build_message(_email())
+        assert msg["Date"]
+        assert msg["Date"].strip() != ""
+
     def test_plain_text(self):
         msg = _build_message(_email())
         assert msg["Subject"] == "Hello"
