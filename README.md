@@ -92,3 +92,74 @@ Returns `202 Accepted` on success, or `429 Too Many Requests` if the queue is fu
 pip install -e ".[dev]"
 pytest
 ```
+
+## Contrib integrations
+
+The `contrib/` folder contains optional helper modules for common frameworks.
+They require the **`contrib`** optional extra (which adds `requests`):
+
+```bash
+pip install "daleks[contrib]"
+```
+
+### `contrib.client` — synchronous HTTP client
+
+A thin wrapper around `requests` for submitting emails to the Daleks API from
+any Python application:
+
+```python
+from contrib.client import DaleksClient
+
+with DaleksClient("http://localhost:8000") as client:
+    client.send_email(
+        from_address="noreply@example.com",
+        to=["user@example.com"],
+        subject="Hello",
+        text_body="Plain body",
+        html_body="<b>HTML body</b>",  # optional
+    )
+```
+
+Constructor parameters:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `base_url` | required | Base URL of the Daleks server |
+| `timeout` | `10` | HTTP request timeout in seconds |
+| `smtp_account` | `None` | Default SMTP account name (round-robin if omitted) |
+
+### `contrib.flask_security_mail` — Flask-Security mail util
+
+`DaleksMailUtil` is a drop-in `mail_util_cls` for
+[Flask-Security](https://flask-security-too.readthedocs.io/) that routes all
+outgoing security emails (confirmation, password reset, etc.) through the
+Daleks queue instead of connecting to SMTP directly.
+
+```python
+from flask import Flask
+from flask_security import Security, SQLAlchemyUserDatastore
+from contrib.flask_security_mail import DaleksMailUtil
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = "super-secret"
+app.config["SECURITY_PASSWORD_SALT"] = "salty"
+
+# Point Flask-Security at the Daleks server
+app.config["DALEKS_URL"] = "http://localhost:8000"
+# app.config["DALEKS_TIMEOUT"] = 10          # optional, default 10 s
+# app.config["DALEKS_SMTP_ACCOUNT"] = None   # optional, uses round-robin
+
+security = Security(
+    app,
+    user_datastore,
+    mail_util_cls=DaleksMailUtil,
+)
+```
+
+Flask configuration keys used by `DaleksMailUtil`:
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+| `DALEKS_URL` | ✅ | — | Base URL of the running Daleks server |
+| `DALEKS_TIMEOUT` | | `10` | HTTP request timeout in seconds |
+| `DALEKS_SMTP_ACCOUNT` | | `None` | SMTP account to target (round-robin if absent) |
