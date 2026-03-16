@@ -93,6 +93,21 @@ Each `[[smtp_accounts]]` entry supports:
 
 Submit an email for delivery.
 
+```bash
+curl -X POST http://localhost:8000/api/v1/email \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from_address": "noreply@example.com",
+    "to": ["recipient@example.com"],
+    "subject": "Hello",
+    "text_body": "Plain text body",
+    "html_body": "<b>HTML body</b>",
+    "smtp_account": "primary"
+  }'
+```
+
+Request body fields:
+
 ```json
 {
   "from_address": "noreply@example.com",
