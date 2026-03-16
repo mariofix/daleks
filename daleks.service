@@ -1,0 +1,23 @@
+[Unit]
+Description=Daleks – private mailer / email queue exterminator
+Documentation=https://github.com/mariofix/daleks
+After=network.target
+
+[Service]
+Type=simple
+User=zvn
+Group=zvn
+WorkingDirectory=/home/zvn/public_apps/daleks
+Environment="DALEKS_CONFIG=/home/zvn/public_apps/daleks/config.toml"
+ExecStart=/home/zvn/public_apps/daleks/.venv/bin/daleks
+Restart=on-failure
+RestartSec=5s
+
+# Send all output to the systemd journal (journalctl).
+# No log files are created; use journalctl to inspect logs (see below).
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=daleks
+
+[Install]
+WantedBy=multi-user.target
