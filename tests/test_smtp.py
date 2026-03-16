@@ -104,6 +104,8 @@ class TestSendEmail:
         assert kwargs["hostname"] == "localhost"
         assert kwargs["port"] == 1025
         assert kwargs["start_tls"] is True
+        assert kwargs["sender"] == "sender@example.com"
+        assert kwargs["recipients"] == ["recipient@example.com"]
 
     async def test_send_ssl_account(self):
         account = _account(use_tls=False, use_ssl=True, port=465)
@@ -131,3 +133,21 @@ class TestSendEmail:
         _, kwargs = mock_send.call_args
         assert kwargs["username"] is None
         assert kwargs["password"] is None
+
+    async def test_cc_recipients_included_in_envelope(self):
+        account = _account()
+        email = _email(cc=["cc@example.com", "cc2@example.com"])
+        with patch("daleks.smtp_client.aiosmtplib.send", new_callable=AsyncMock) as mock_send:
+            await send_email(account, email)
+        _, kwargs = mock_send.call_args
+        assert "recipient@example.com" in kwargs["recipients"]
+        assert "cc@example.com" in kwargs["recipients"]
+        assert "cc2@example.com" in kwargs["recipients"]
+
+    async def test_no_cc_recipients_only_to(self):
+        account = _account()
+        email = _email()
+        with patch("daleks.smtp_client.aiosmtplib.send", new_callable=AsyncMock) as mock_send:
+            await send_email(account, email)
+        _, kwargs = mock_send.call_args
+        assert kwargs["recipients"] == ["recipient@example.com"]
