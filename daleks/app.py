@@ -37,7 +37,7 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
     if cfg.error_notify is not None:
         en = cfg.error_notify
         credentials = (en.username, en.password) if en.username else None
-        secure: tuple[()] | None = () if en.use_tls else None
+        secure = () if en.use_tls else None
         smtp_handler = logging.handlers.SMTPHandler(
             mailhost=(en.host, en.port),
             fromaddr=en.from_address,
