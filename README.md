@@ -279,3 +279,54 @@ Flask configuration keys used by `DaleksMailUtil`:
 | `DALEKS_URL` | ✅ | — | Base URL of the running Daleks server |
 | `DALEKS_TIMEOUT` | | `10` | HTTP request timeout in seconds |
 | `DALEKS_SMTP_ACCOUNT` | | `None` | SMTP account to target (round-robin if absent) |
+
+### `daleks.contrib.django_backend` — Django email backend
+
+`DaleksEmailBackend` is a drop-in replacement for Django's default SMTP email
+backend.  Set it as `EMAIL_BACKEND` and all outgoing emails (sent via
+`send_mail`, `send_mass_mail`, class-based views, etc.) are routed through the
+Daleks queue instead of connecting to SMTP directly.
+
+```python
+# settings.py
+EMAIL_BACKEND = "daleks.contrib.django_backend.DaleksEmailBackend"
+DALEKS_URL = "http://localhost:8000"
+# DALEKS_TIMEOUT = 10          # optional, default 10 s
+# DALEKS_SMTP_ACCOUNT = None   # optional, uses round-robin
+```
+
+Then use Django's standard email API as usual:
+
+```python
+from django.core.mail import send_mail
+
+send_mail(
+    subject="Hello",
+    message="Plain text body",
+    from_email="noreply@example.com",
+    recipient_list=["user@example.com"],
+)
+```
+
+HTML emails via `EmailMultiAlternatives` are also supported:
+
+```python
+from django.core.mail import EmailMultiAlternatives
+
+email = EmailMultiAlternatives(
+    subject="Hello",
+    body="Plain text body",
+    from_email="noreply@example.com",
+    to=["user@example.com"],
+)
+email.attach_alternative("<b>HTML body</b>", "text/html")
+email.send()
+```
+
+Django settings keys used by `DaleksEmailBackend`:
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+| `DALEKS_URL` | ✅ | — | Base URL of the running Daleks server |
+| `DALEKS_TIMEOUT` | | `10` | HTTP request timeout in seconds |
+| `DALEKS_SMTP_ACCOUNT` | | `None` | SMTP account to target (round-robin if absent) |
