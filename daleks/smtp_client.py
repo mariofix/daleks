@@ -13,6 +13,7 @@ from email.utils import formatdate, make_msgid
 
 import aiosmtplib
 
+from . import __version__
 from .config import SmtpAccount
 from .models import EmailMessage
 
@@ -24,6 +25,7 @@ def _build_message(email: EmailMessage) -> StdEmailMessage:
     msg = StdEmailMessage()
     msg["Date"] = formatdate(localtime=True)
     msg["Message-ID"] = make_msgid()
+    msg["X-Mailer"] = f"daleks/{__version__}"
     msg["Subject"] = email.subject
     msg["From"] = email.from_address
     msg["To"] = ", ".join(email.to)

@@ -51,6 +51,13 @@ class TestBuildMessage:
         assert msg["Date"]
         assert msg["Date"].strip() != ""
 
+    def test_x_mailer_is_set(self):
+        """Every built message must include an X-Mailer header identifying daleks."""
+        from daleks import __version__
+
+        msg = _build_message(_email())
+        assert msg["X-Mailer"] == f"daleks/{__version__}"
+
     def test_plain_text(self):
         msg = _build_message(_email())
         assert msg["Subject"] == "Hello"
