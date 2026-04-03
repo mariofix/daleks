@@ -11,44 +11,55 @@ them asynchronously through one or more SMTP relays.
 - **Multiple SMTP accounts** — round-robin or explicit targeting
 - **IP / network allow-listing** — requests from unlisted IPs are rejected with 403
 - **No auth, no data storage** — only simple log lines
-- **Minimal dependencies** — FastAPI + uvicorn + aiosmtplib
+- **Flexible install** — zero mandatory dependencies; server stack (FastAPI, uvicorn, aiosmtplib) is an optional `[server]` extra
 
 ## Installation
 
 Daleks is not published on PyPI. Install it directly from GitHub:
 
 ```bash
-# Latest main branch
-pip install "daleks @ git+https://github.com/mariofix/daleks.git"
+# Run the server (FastAPI + uvicorn + aiosmtplib included)
+pip install "daleks[server] @ git+https://github.com/mariofix/daleks.git"
+
+# Sync HTTP client only (no server stack required)
+pip install "daleks[contrib] @ git+https://github.com/mariofix/daleks.git"
+
+# Both server and contrib extras
+pip install "daleks[server,contrib] @ git+https://github.com/mariofix/daleks.git"
 
 # Specific tag / release
-pip install "daleks @ git+https://github.com/mariofix/daleks.git@v0.1.0"
-
-# With contrib extras (adds requests for the HTTP client integration)
-pip install "daleks[contrib] @ git+https://github.com/mariofix/daleks.git"
+pip install "daleks[server] @ git+https://github.com/mariofix/daleks.git@v0.1.0"
 ```
+
+### Install matrix
+
+| Use-case | Command |
+|---|---|
+| Run the Daleks server | `pip install "daleks[server] @ git+https://github.com/mariofix/daleks.git"` |
+| Sync HTTP client only | `pip install "daleks[contrib] @ git+https://github.com/mariofix/daleks.git"` |
+| Server + client helpers | `pip install "daleks[server,contrib] @ git+https://github.com/mariofix/daleks.git"` |
 
 Or in `requirements.txt` / `pyproject.toml`:
 
 ```
-# requirements.txt
-daleks @ git+https://github.com/mariofix/daleks.git
+# requirements.txt — server use-case
+daleks[server] @ git+https://github.com/mariofix/daleks.git
 ```
 
 ```toml
 # pyproject.toml
 dependencies = [
-    "daleks @ git+https://github.com/mariofix/daleks.git",
+    "daleks[server] @ git+https://github.com/mariofix/daleks.git",
 ]
 ```
 
 ## Quick start
 
 ```bash
-pip install "daleks @ git+https://github.com/mariofix/daleks.git"
+pip install "daleks[server] @ git+https://github.com/mariofix/daleks.git"
 
 # For local development, clone first and then:
-pip install -e "."
+pip install -e ".[server]"
 
 # Copy and edit the example configuration
 cp config.example.toml config.toml
@@ -147,7 +158,7 @@ configuration file lives at `/home/zvn/public_apps/daleks/config.toml`.
 mkdir -p /home/zvn/public_apps/daleks
 cd /home/zvn/public_apps/daleks
 python3 -m venv .venv
-.venv/bin/pip install "daleks @ git+https://github.com/mariofix/daleks.git"
+.venv/bin/pip install "daleks[server] @ git+https://github.com/mariofix/daleks.git"
 
 # 2. Copy and edit the configuration
 cp config.example.toml config.toml
