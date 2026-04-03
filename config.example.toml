@@ -43,3 +43,19 @@ use_tls  = false
 use_ssl  = true
 timeout  = 30
 workers  = 2
+
+# ── Error notifications ───────────────────────────────────────────────────────
+# When this section is present, Daleks attaches a synchronous SMTPHandler to
+# the root logger.  Any ERROR (or higher) log event will trigger an email to
+# the listed recipients immediately — no queue, no async overhead.
+# Remove or comment-out the entire section to disable error notifications.
+
+# [error_notify]
+# host         = "smtp.example.com"
+# port         = 587
+# from_address = "daleks-errors@example.com"
+# to           = ["ops@example.com", "oncall@example.com"]
+# subject      = "[Daleks] Application Error"
+# username     = "daleks-errors@example.com"
+# password     = "change-me"
+# use_tls      = true   # STARTTLS; set false for plain / implicit-TLS relay

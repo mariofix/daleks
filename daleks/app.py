@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import logging.handlers
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -32,6 +33,21 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
         level=cfg.log_level.upper(),
         format="%(asctime)s %(levelname)-8s %(name)s %(message)s",
     )
+
+    if cfg.error_notify is not None:
+        en = cfg.error_notify
+        credentials = (en.username, en.password) if en.username else None
+        secure: tuple[()] | None = () if en.use_tls else None
+        smtp_handler = logging.handlers.SMTPHandler(
+            mailhost=(en.host, en.port),
+            fromaddr=en.from_address,
+            toaddrs=en.to,
+            subject=en.subject,
+            credentials=credentials,
+            secure=secure,
+        )
+        smtp_handler.setLevel(logging.ERROR)
+        logging.getLogger().addHandler(smtp_handler)
 
     queue_manager = QueueManager(cfg)
 
