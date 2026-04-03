@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, field_validator, model_validator
 
 
@@ -17,6 +19,8 @@ class EmailMessage(BaseModel):
     reply_to: str | None = None
     # Optional: target a specific configured SMTP account by name.
     smtp_account: str | None = None
+    # Importance / priority hint for the receiving MUA.
+    importance: Literal["low", "normal", "high"] = "normal"
 
     @field_validator("to", mode="before")
     @classmethod
