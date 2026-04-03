@@ -121,6 +121,8 @@ class DaleksEmailBackend(BaseEmailBackend):
                     text_body=message.body or None,
                     html_body=_extract_html(message),
                     cc=list(message.cc) or None,
+                    # Daleks accepts a single reply-to address; use the first
+                    # one when Django provides multiple.
                     reply_to=list(message.reply_to)[0] if message.reply_to else None,
                 )
                 logger.debug(
