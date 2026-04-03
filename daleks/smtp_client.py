@@ -26,6 +26,12 @@ def _build_message(email: EmailMessage) -> StdEmailMessage:
     msg["Date"] = formatdate(localtime=True)
     msg["Message-ID"] = make_msgid()
     msg["X-Mailer"] = f"daleks/{__version__}"
+    # Deliverability / spam-classification headers
+    msg["Auto-Submitted"] = "auto-generated"
+    msg["Precedence"] = "bulk"
+    _x_priority = {"low": "5", "normal": "3", "high": "1"}
+    msg["Importance"] = email.importance
+    msg["X-Priority"] = _x_priority[email.importance]
     msg["Subject"] = email.subject
     msg["From"] = email.from_address
     msg["To"] = ", ".join(email.to)

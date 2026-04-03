@@ -59,6 +59,36 @@ class TestEmailMessage:
         assert msg.reply_to == "reply@b.com"
         assert msg.smtp_account == "primary"
 
+    def test_importance_default(self):
+        msg = EmailMessage(
+            from_address="a@b.com",
+            to=["b@c.com"],
+            subject="Hi",
+            text_body="Hi",
+        )
+        assert msg.importance == "normal"
+
+    def test_importance_valid_values(self):
+        for value in ("low", "normal", "high"):
+            msg = EmailMessage(
+                from_address="a@b.com",
+                to=["b@c.com"],
+                subject="Hi",
+                text_body="Hi",
+                importance=value,
+            )
+            assert msg.importance == value
+
+    def test_importance_invalid_value_raises(self):
+        with pytest.raises(ValidationError):
+            EmailMessage(
+                from_address="a@b.com",
+                to=["b@c.com"],
+                subject="Hi",
+                text_body="Hi",
+                importance="very-urgent",  # type: ignore[arg-type]
+            )
+
 
 class TestEmailResponse:
     def test_defaults(self):

@@ -58,6 +58,34 @@ class TestBuildMessage:
         msg = _build_message(_email())
         assert msg["X-Mailer"] == f"daleks/{__version__}"
 
+    def test_auto_submitted_is_set(self):
+        """Every built message must include Auto-Submitted: auto-generated."""
+        msg = _build_message(_email())
+        assert msg["Auto-Submitted"] == "auto-generated"
+
+    def test_precedence_is_bulk(self):
+        """Every built message must include Precedence: bulk."""
+        msg = _build_message(_email())
+        assert msg["Precedence"] == "bulk"
+
+    def test_importance_defaults_to_normal(self):
+        """Default importance must yield Importance: normal and X-Priority: 3."""
+        msg = _build_message(_email())
+        assert msg["Importance"] == "normal"
+        assert msg["X-Priority"] == "3"
+
+    def test_importance_high(self):
+        """importance='high' must set Importance: high and X-Priority: 1."""
+        msg = _build_message(_email(importance="high"))
+        assert msg["Importance"] == "high"
+        assert msg["X-Priority"] == "1"
+
+    def test_importance_low(self):
+        """importance='low' must set Importance: low and X-Priority: 5."""
+        msg = _build_message(_email(importance="low"))
+        assert msg["Importance"] == "low"
+        assert msg["X-Priority"] == "5"
+
     def test_plain_text(self):
         msg = _build_message(_email())
         assert msg["Subject"] == "Hello"
