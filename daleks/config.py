@@ -40,25 +40,6 @@ class SmtpAccount(BaseModel):
         return self
 
 
-class ErrorNotify(BaseModel):
-    """SMTP settings for sending an email on every ERROR-level log event.
-
-    When present in the configuration the application attaches a synchronous
-    :class:`logging.handlers.SMTPHandler` to the root logger so that any
-    ``logging.error(...)`` / ``logging.exception(...)`` call delivers an
-    email immediately — no queue, no async overhead.
-    """
-
-    host: str
-    port: int = 25
-    from_address: str
-    to: list[str]
-    subject: str = "[Daleks] Application Error"
-    username: str = ""
-    password: str = ""
-    use_tls: bool = False
-
-
 class Settings(BaseModel):
     """Application-wide settings."""
 
@@ -66,7 +47,6 @@ class Settings(BaseModel):
     queue_max_size: int = 1000
     smtp_accounts: list[SmtpAccount] = []
     log_level: str = "INFO"
-    error_notify: ErrorNotify | None = None
 
 
 def load_settings(config_path: str | None = None) -> Settings:
