@@ -341,3 +341,68 @@ Django settings keys used by `DaleksEmailBackend`:
 | `DALEKS_URL` | ✅ | — | Base URL of the running Daleks server |
 | `DALEKS_TIMEOUT` | | `10` | HTTP request timeout in seconds |
 | `DALEKS_SMTP_ACCOUNT` | | `None` | SMTP account to target (round-robin if absent) |
+
+### `daleks.contrib.flask_log_handler` — Flask error-log handler
+
+`DaleksLogHandler` is a standard `logging.Handler` subclass that forwards
+every `ERROR`-or-higher log record to the Daleks API as an email.  Use the
+`init_app()` helper to wire it up from Flask configuration keys, or
+instantiate the handler directly and attach it to any logger.
+
+#### Using `init_app` (recommended)
+
+```python
+from flask import Flask
+from daleks.contrib.flask_log_handler import init_app
+
+app = Flask(__name__)
+
+# Required
+app.config["DALEKS_URL"]      = "http://localhost:8000"
+app.config["DALEKS_LOG_FROM"] = "errors@example.com"
+app.config["DALEKS_LOG_TO"]   = ["ops@example.com"]
+
+# Optional
+# app.config["DALEKS_LOG_SUBJECT"]  = "[MyApp] Error log"   # default: "[App] Error log"
+# app.config["DALEKS_LOG_LEVEL"]    = "ERROR"                # default: "ERROR"
+# app.config["DALEKS_TIMEOUT"]      = 10                     # default: 10 s
+# app.config["DALEKS_SMTP_ACCOUNT"] = None                   # default: round-robin
+
+init_app(app)  # attaches DaleksLogHandler to app.logger
+
+# Now every app.logger.error(...) / app.logger.exception(...) delivers an email
+```
+
+#### Using the handler directly
+
+```python
+import logging
+from daleks.contrib.flask_log_handler import DaleksLogHandler
+
+handler = DaleksLogHandler(
+    daleks_url="http://localhost:8000",
+    from_address="errors@example.com",
+    to=["ops@example.com"],
+    subject="[MyApp] Error",   # optional
+    smtp_account="primary",    # optional
+    timeout=10,                # optional
+    level=logging.ERROR,       # optional
+)
+logging.getLogger("myapp").addHandler(handler)
+```
+
+Flask configuration keys used by `init_app`:
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+| `DALEKS_URL` | ✅ | — | Base URL of the running Daleks server |
+| `DALEKS_LOG_FROM` | ✅ | — | Sender address for error-notification emails |
+| `DALEKS_LOG_TO` | ✅ | — | Recipient address string or list of strings |
+| `DALEKS_LOG_SUBJECT` | | `"[App] Error log"` | Email subject line |
+| `DALEKS_LOG_LEVEL` | | `"ERROR"` | Minimum log level (`"WARNING"`, `"ERROR"`, `"CRITICAL"`, …) |
+| `DALEKS_TIMEOUT` | | `10` | HTTP request timeout in seconds |
+| `DALEKS_SMTP_ACCOUNT` | | `None` | SMTP account to target (round-robin if absent) |
+
+> **Note:** delivery failures (network errors, non-2xx responses) are caught by
+> `logging.Handler.handleError` and written to `sys.stderr` — they never raise
+> an exception inside your application.
